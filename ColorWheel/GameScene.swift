@@ -15,13 +15,134 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let wheelFactory = Wheel()
     var startingAngle:CGFloat?
     var startingTime:TimeInterval?
+    let colors = [SKColor.yellow, SKColor.red, SKColor.blue, SKColor.purple]
+    var gameScore = 0;
+    var numberOfLives = 3;
+    var path = UIBezierPath()
+    let circleFactory = CircleFactory()
+    let scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
+    let numberOfLivesLabel = SKLabelNode(fontNamed: "Chalkduster")
+    var circle:SKNode?
+    
+    enum gameState {
+        case preGame
+        case inGame
+        case afterGame
+    }
+    
+    
+    
     
     
     override func didMove(to view: SKView) {
-        wheelFactory.loadWheel(currentScene: self)
         self.physicsWorld.contactDelegate = self
-        self.addChild(wheelFactory.wheel)
         startNewLevel()
+        
+        circle = circleFactory.createCircle(numberOfSections: 4)
+        circle!.position = CGPoint(x: self.size.width/2, y: self.size.height*0.2)
+        circle!.name = "circle"
+        circle!.zPosition = 100
+        self.addChild(circle!)
+        let offsetCircle = SKAction.rotate(byAngle: 0.5 * CGFloat(Double.pi/2), duration: 0)
+        circle!.run(offsetCircle)
+        
+        let ledge = SKNode()
+        ledge.position = CGPoint(x: self.size.width/2, y: 180)
+        let ledgeBody = SKPhysicsBody(rectangleOf: CGSize(width: 200, height: 10))
+        ledgeBody.isDynamic = false
+        ledgeBody.categoryBitMask = PhysicsCategory.Quardant
+        ledge.physicsBody = ledgeBody
+        addChild(ledge)
+        
+        scoreLabel.text = "Score: \(gameScore)"
+        scoreLabel.fontSize = CGFloat(45)
+        scoreLabel.fontColor = SKColor.white
+        scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        scoreLabel.position = CGPoint(x: self.size.width*0.15, y: self.size.height*0.9)
+        scoreLabel.zPosition = 5
+        self.addChild(scoreLabel)
+        
+        numberOfLivesLabel.text = "Lives: \(numberOfLives)"
+        numberOfLivesLabel.fontSize = CGFloat(45)
+        numberOfLivesLabel.fontColor = SKColor.white
+        numberOfLivesLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.right
+        numberOfLivesLabel.position = CGPoint(x: self.size.width*0.85, y: self.size.height*0.9)
+        numberOfLivesLabel.zPosition = 5
+        self.addChild(numberOfLivesLabel)
+    }
+    
+    
+    func createQuadrant() -> UIBezierPath{
+        // 1
+        let path = UIBezierPath()
+        // 2
+        path.move(to: CGPoint(x: 0, y: -200))
+        // 3
+        path.addLine(to: CGPoint(x: 0, y: 0))
+        // 4
+        path.addArc(withCenter: CGPoint.zero,
+                    radius: 0,
+                    startAngle: CGFloat(3.0 * Double.pi/2),
+                    endAngle: CGFloat(0),
+                    clockwise: true)
+        // 5
+        path.addLine(to: CGPoint(x: 200, y: 0))
+        path.addArc(withCenter: CGPoint.zero,
+                    radius: 200,
+                    startAngle: CGFloat(0.0),
+                    endAngle: CGFloat(3.0 * Double.pi/2),
+                    clockwise: false)
+        return path
+    }
+    func createColoredCircle(_ path: UIBezierPath, clockwise: Bool) -> SKNode {
+        let circle = SKNode()
+        circle.name = "circle"
+        
+        var rotationFactor = CGFloat(Double.pi/2)
+        if !clockwise {
+            rotationFactor *= -1
+        }
+        
+        for i in 0...3 {
+            let section = SKShapeNode(path: path.cgPath)
+            section.fillColor = colors[i]
+            section.strokeColor = colors[i]
+            section.zRotation = rotationFactor * CGFloat(i);
+            let sectionBody = SKPhysicsBody(polygonFrom: path.cgPath)
+            sectionBody.categoryBitMask = PhysicsCategory.Cirlce
+            sectionBody.collisionBitMask = 0
+            sectionBody.contactTestBitMask = PhysicsCategory.Particle
+            sectionBody.affectedByGravity = false
+            section.physicsBody = sectionBody
+            
+            circle.addChild(section)
+        }
+        return circle
+    }
+    
+    
+    func dieAndRestart(){
+        print("Boom!")
+        removeFromParent()
+        
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        if let nodeA = contact.bodyA.node as? SKShapeNode, let nodeB = contact.bodyB.node as? SKShapeNode {
+            if nodeA.fillColor != nodeB.fillColor {
+                numberOfLives -= 1
+                nodeB.removeFromParent()
+            }
+            else if nodeA.fillColor == nodeB.fillColor {
+                nodeB.removeFromParent()
+                gameScore += 1
+            }
+            scoreLabel.text = "Score: \(gameScore)"
+            if(numberOfLives >= 0){
+               numberOfLivesLabel.text = "Lives: \(numberOfLives)"
+            }
+            
+        }
     }
     
     func startNewLevel(){
@@ -37,75 +158,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func spawnParticle(){
         let particle = particleFactory.createParticle(currentScene: self)
         self.addChild(particle)
+        let particleBody = SKPhysicsBody(circleOfRadius: 10)
+        particleBody.categoryBitMask = PhysicsCategory.Particle
+        particleBody.collisionBitMask = 4
+        particle.physicsBody = particleBody
+        
         let particleEndPoint = particleFactory.generateParticleEndPoint(currentScene: self)
         let particleSequence = SKAction.sequence([particleFactory.moveParticle(endPoint: particleEndPoint, currentScene: self),particleFactory.deleteParticle()])
         particle.run(particleSequence)
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let location = touch.location(in:self)
-            let node = atPoint(location)
-            if node.name == "wheel" {
-                let dx = location.x - node.position.x
-                let dy = location.y - node.position.y
-                // Store angle and current time
-                startingAngle = atan2(dy, dx)
-                startingTime = touch.timestamp
-                node.physicsBody?.angularVelocity = 0
-            }
-        }
+        print("Here! Touched")
+        let rotateAction = SKAction.rotate(byAngle: 1.0 * CGFloat(Double.pi/2), duration: 0.2)
+        circle!.run(rotateAction)
+        
     }
-
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches{
-            let location = touch.location(in:self)
-            let node = atPoint(location)
-            if node.name == "wheel" {
-                let dx = location.x - node.position.x
-                let dy = location.y - node.position.y
-
-
-                let angle = atan2(dy, dx)
-                guard startingAngle != nil else {return}
-                // Calculate angular velocity; handle wrap at pi/-pi
-                var deltaAngle = angle - startingAngle!
-                if abs(deltaAngle) > CGFloat.pi {
-                    if (deltaAngle > 0) {
-                        deltaAngle = deltaAngle - CGFloat.pi //* 2
-                    }
-                    else {
-                        deltaAngle = deltaAngle + CGFloat.pi //* 2
-                    }
-                }
-                let dt = CGFloat(touch.timestamp - startingTime!)
-                let velocity = deltaAngle / dt
-
-                node.physicsBody?.angularVelocity = velocity
-
-                startingAngle = angle
-                print(angle)
-                if(angle > 0 && angle < CGFloat(Float.pi/2)){
-                    print("RED")
-                }
-                else if(angle > CGFloat(Float.pi/2) && angle < CGFloat(Float.pi)){
-                    print("GREEN")
-                }
-                else if(angle > CGFloat(Float.pi) && angle < CGFloat(Float.pi*1.5)){
-                    print("BLUE")
-                }
-                else if(angle > CGFloat(Float.pi*1.5) && angle < CGFloat(Float.pi*2)){
-                    print("YELLOW")
-                }
-                startingTime = touch.timestamp
-            }
-        }
+//        let rotateAction = SKAction.rotate(byAngle: 1.0 * CGFloat(Double.pi/2), duration: 0.2)
+//        circle.run(rotateAction)
     }
-
-
-
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-
-        //startingAngle = nil
-        //startingTime = nil
-    }
+    
+    
 }

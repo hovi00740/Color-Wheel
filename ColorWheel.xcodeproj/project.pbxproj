@@ -17,6 +17,8 @@
 		B12A50332393292100499BCC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B12A50312393292100499BCC /* LaunchScreen.storyboard */; };
 		B12A503B2393299800499BCC /* ParticleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12A503A2393299800499BCC /* ParticleFactory.swift */; };
 		B12A503D23947A6300499BCC /* Wheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12A503C23947A6300499BCC /* Wheel.swift */; };
+		B1E4BD3723A3E62500E9C63A /* CircleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E4BD3623A3E62500E9C63A /* CircleFactory.swift */; };
+		B1E4BD3B23A3E9A300E9C63A /* LAWSOFPHYSICS.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E4BD3A23A3E9A300E9C63A /* LAWSOFPHYSICS.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		B12A50342393292100499BCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B12A503A2393299800499BCC /* ParticleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticleFactory.swift; sourceTree = "<group>"; };
 		B12A503C23947A6300499BCC /* Wheel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wheel.swift; sourceTree = "<group>"; };
+		B1E4BD3623A3E62500E9C63A /* CircleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleFactory.swift; sourceTree = "<group>"; };
+		B1E4BD3A23A3E9A300E9C63A /* LAWSOFPHYSICS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LAWSOFPHYSICS.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +79,8 @@
 				B12A50342393292100499BCC /* Info.plist */,
 				B12A503A2393299800499BCC /* ParticleFactory.swift */,
 				B12A503C23947A6300499BCC /* Wheel.swift */,
+				B1E4BD3623A3E62500E9C63A /* CircleFactory.swift */,
+				B1E4BD3A23A3E9A300E9C63A /* LAWSOFPHYSICS.swift */,
 			);
 			path = ColorWheel;
 			sourceTree = "<group>";
@@ -156,6 +162,8 @@
 				B12A50292393291D00499BCC /* GameScene.swift in Sources */,
 				B12A502B2393291D00499BCC /* GameViewController.swift in Sources */,
 				B12A503D23947A6300499BCC /* Wheel.swift in Sources */,
+				B1E4BD3723A3E62500E9C63A /* CircleFactory.swift in Sources */,
+				B1E4BD3B23A3E9A300E9C63A /* LAWSOFPHYSICS.swift in Sources */,
 				B12A50232393291D00499BCC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

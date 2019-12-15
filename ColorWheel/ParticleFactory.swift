@@ -9,26 +9,29 @@ struct ParticleFactory {
     var color: UIColor?
     let layer: CGFloat = 2
     let defaultSacle: CGFloat = 1
-    let arrayOfParticleColors = ["BlueCircle","GreenCircle","YellowCircle","RedCircle"]
+    let arrayOfParticleColors = [SKColor.yellow, SKColor.red, SKColor.blue, SKColor.purple]
     
-    func loadParticle(particle: SKSpriteNode, position: CGPoint){
+    func loadParticle(particle: SKShapeNode, position: CGPoint){
         particle.position = position
     }
-    func createParticle(currentScene: SKScene) -> SKSpriteNode{
-        let particle = SKSpriteNode(imageNamed: arrayOfParticleColors[Int.random(in: 0..<4)])
+    func createParticle(currentScene: SKScene) -> SKShapeNode{
+        let particle = SKShapeNode(circleOfRadius: 20)
+        let randomIndex = Int.random(in: 0...3)
+        particle.fillColor = arrayOfParticleColors[randomIndex]
+        particle.strokeColor = arrayOfParticleColors[randomIndex]
         let randomXStart = random(min: currentScene.size.width * 0.4, max: currentScene.size.width * 0.5)
         let startPoint = CGPoint(x: randomXStart , y: currentScene.size.height * 0.9)
         setParticlePosition(particle: particle, position: startPoint)
         return particle
     }
     
-    func setParticlePosition(particle: SKSpriteNode, position: CGPoint){
+    func setParticlePosition(particle: SKShapeNode, position: CGPoint){
         particle.position = position
     }
     func moveParticle(endPoint: CGPoint, currentScene: SKScene) -> SKAction{
-        return SKAction.move(to: endPoint, duration: 1)
+        return SKAction.move(to: endPoint, duration: 2)
     }
-    func rotateParticle(endPoint: CGPoint, particle: SKSpriteNode){
+    func rotateParticle(endPoint: CGPoint, particle: SKShapeNode){
         let distanceBetweenStartAndEndX = endPoint.x - particle.position.x//startPoint.x
         let distanceBetweenStartAndEndY = endPoint.y - particle.position.y
         let amountToRotate = atan2(distanceBetweenStartAndEndY, distanceBetweenStartAndEndX)
